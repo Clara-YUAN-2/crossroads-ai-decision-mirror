@@ -1,0 +1,4 @@
+.env
+preview-server*.log
+node-server*.log
+qa-*.png

@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="岔路牌：用一张塔罗牌换个角度，用清晰的情景推演做自己的决定。" />
+  <title>岔路牌 · AI 个人决策镜子</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f5cd4b' stroke='%2324231f' stroke-width='3'/%3E%3Cpath d='M32 10v44M14 23h30l7 9-7 9H14l8-9-8-9Z' fill='none' stroke='%2324231f' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="bg-[#eee9df] text-[#24231f] antialiased">
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <div class="page-shell">
+    <header class="site-header" id="top">
+      <a class="brand" href="#top" aria-label="岔路牌首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M24 5v38M9 16h24l6 6-6 6H9l6-6-6-6Z"/><path d="M20 22h14"/></svg>
+        </span>
+        <span>
+          <strong>岔路牌</strong>
+          <small>DECISION MIRROR</small>
+        </span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="主导航">
+        <a href="#mirror">决策镜子</a>
+        <a href="#memory">我的足迹</a>
+        <a href="#principles">关于它</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="tone-toggle" id="toneToggle" type="button" aria-pressed="false">
+          <span class="tone-dot" aria-hidden="true"></span>
+          <span id="toneLabel">轻松模式</span>
+        </button>
+        <button class="circle-button mobile-menu-button" id="mobileMenuButton" type="button" aria-label="打开菜单" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+
+      <div class="mobile-menu" id="mobileMenu" hidden>
+        <a href="#mirror">决策镜子</a>
+        <a href="#memory">我的足迹</a>
+        <a href="#principles">关于它</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero section-pad" aria-labelledby="hero-title">
+        <svg class="hero-doodles" viewBox="0 0 1200 680" preserveAspectRatio="none" aria-hidden="true">
+          <g>
+            <path d="M25 78c95-44 148 36 223 3s118-8 152 15 117 16 165-18 112-31 170 9 123 34 182-3 132-19 251 26"/>
+            <path d="M44 516c80-62 153-36 216 17s146 26 202-11 125-51 183 0 122 53 192 6 151-36 286 12"/>
+            <path d="M118 171c33 17 43 53 19 78s-69 18-83-18 23-77 64-60Z"/><path d="M1064 172c31 0 54 25 54 56s-21 59-58 59-63-25-58-61 26-54 62-54Z"/>
+            <path d="M1040 210l18-17 10 12 18-20M1060 286v55M1027 320h66"/>
+            <path d="M82 568l28-22 28 22-28 22-28-22Zm28-22v44M82 568h56"/>
+            <path d="M918 88c17-24 53-22 66 3 13 26-5 56-34 55-31-2-49-33-32-58Z"/><path d="M951 72v21M951 141v23M912 117h22M970 117h23"/>
+            <path d="M238 585c-6-40 27-70 61-51 34-26 76 1 64 40-9 29-42 50-67 67-26-13-53-27-58-56Z"/>
+            <path d="M767 563c12-27 35-36 62-23 19 9 33 34 24 55-10 22-37 30-61 20-21-9-34-30-25-52Z"/>
+            <path d="M794 529c3-19 18-32 36-35M851 535c15-8 32-6 44 6"/>
+          </g>
+        </svg>
+
+        <div class="hero-copy">
+          <div class="eyebrow-row">
+            <span class="eyebrow">AI PERSONAL DECISION MIRROR</span>
+            <span class="tiny-spark" aria-hidden="true">✦</span>
+          </div>
+          <h1 id="hero-title">把纠结摊在<br/><em>阳光下</em> 看看</h1>
+          <p>一张牌负责打开脑洞，AI 帮你拆清选项与代价。<br/>它们都不替你做决定，只陪你看见自己。</p>
+
+          <div class="hero-tags" aria-label="产品特点">
+            <span>不预测命运</span>
+            <span>不替你拍板</span>
+            <span>记得后来的你</span>
+          </div>
+        </div>
+
+        <div class="question-window retro-window" aria-label="新建决策">
+          <div class="window-bar">
+            <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>NEW_DECISION.TXT</span>
+            <span class="window-state" id="aiConnectionState">● CONNECTING AI</span>
+          </div>
+          <div class="question-body">
+            <label for="questionInput">今天，哪件事让你在岔路口多站了一会儿？</label>
+            <div class="textarea-wrap">
+              <textarea id="questionInput" maxlength="1000" rows="5" placeholder="比如：周末是去参加朋友的聚会，还是留在家里休息？"></textarea>
+              <span class="char-count"><b id="charCount">0</b>/1000</span>
+            </div>
+            <div class="prompt-row">
+              <span>不知道怎么写？试试：</span>
+              <button type="button" class="prompt-chip">去聚会 vs 在家休息</button>
+              <button type="button" class="prompt-chip">买下它 vs 再等等</button>
+            </div>
+            <button class="primary-button" id="beginButton" type="button">
+              <span>陪我理一理</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 6l6 6-6 6"/></svg>
+            </button>
+            <p class="privacy-note">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v10H5z"/></svg>
+              访客模式默认不保存长期记忆，你可以随时离开。
+            </p>
+          </div>
+        </div>
+
+        <div class="scroll-cue" aria-hidden="true"><span>往下走一小步</span><i></i></div>
+      </section>
+
+      <section class="workbench section-pad" id="mirror" aria-labelledby="mirror-title">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">01 / DECISION MIRROR</span>
+            <h2 id="mirror-title">先别急着选，<br/><em>把题目重新读一遍。</em></h2>
+          </div>
+          <p>以下是一条完整的示范流程。输入你的纠结后，选项、牌面与结果都会留在当前浏览器里，刷新也不会突然失忆。</p>
+        </div>
+
+        <div class="flow-window retro-window">
+          <div class="window-bar dark-bar">
+            <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>DECISION_WORKBENCH.APP</span>
+            <span id="saveState" class="window-state">草稿已保存</span>
+          </div>
+
+          <div class="flow-layout">
+            <aside class="step-rail" aria-label="决策步骤">
+              <button class="step-marker is-active" data-step-target="1" type="button"><span>1</span><b>把问题说清楚</b><small>选项与标准</small></button>
+              <button class="step-marker" data-step-target="2" type="button"><span>2</span><b>换一个角度</b><small>滑动抽牌</small></button>
+              <button class="step-marker" data-step-target="3" type="button"><span>3</span><b>看看可能路线</b><small>三种情景</small></button>
+              <button class="step-marker" data-step-target="4" type="button"><span>4</span><b>写下此刻选择</b><small>稍后再相见</small></button>
+            </aside>
+
+            <div class="step-stage">
+              <section class="flow-step is-active" data-step="1" aria-labelledby="step-one-title">
+                <div class="step-kicker"><span>STEP 01</span><i></i><span>CLARIFY</span></div>
+                <div class="step-title-row">
+                  <div>
+                    <h3 id="step-one-title">等待你在上面写下一个问题。</h3>
+                    <p id="analysisSubtitle">分析完成后，你可以继续修改每一个选项。</p>
+                  </div>
+                  <span class="status-sticker">可编辑</span>
+                </div>
+
+                <div class="option-grid">
+                  <article class="option-card option-a">
+                    <span class="option-letter">A</span>
+                    <label for="optionA">选项 A</label>
+                    <input id="optionA" value="" placeholder="等待识别" />
+                    <p id="optionASatisfy">可能满足：等待你的问题开启</p>
+                    <div class="option-wave" aria-hidden="true"></div>
+                  </article>
+                  <div class="versus-badge" aria-hidden="true">OR</div>
+                  <article class="option-card option-b">
+                    <span class="option-letter">B</span>
+                    <label for="optionB">选项 B</label>
+                    <input id="optionB" value="" placeholder="等待识别" />
+                    <p id="optionBSatisfy">可能满足：等待你的问题开启</p>
+                    <div class="option-wave" aria-hidden="true"></div>
+                  </article>
+                </div>
+
+                <div class="criteria-panel">
+                  <div>
+                    <span class="mini-label">这次你最看重什么？</span>
+                    <small>可选 1–3 项</small>
+                  </div>
+                  <div class="criteria-chips" id="criteriaChips">
+                    <button type="button" id="addCriterion">＋ 自定义</button>
+                  </div>
+                  <div class="custom-criterion" id="customCriterion" hidden>
+                    <input id="customCriterionInput" maxlength="12" placeholder="输入你在意的标准" />
+                    <button id="confirmCriterion" type="button">添加</button>
+                    <button id="cancelCriterion" type="button">取消</button>
+                  </div>
+                </div>
+
+                <div class="third-route">
+                  <span aria-hidden="true">↗</span>
+                  <div><b id="thirdRouteTitle">也许还有第三条路</b><p id="thirdRouteDescription">等待分析后，这里会出现更贴合你的折中或补信息策略。</p></div>
+                  <button type="button" id="useThirdRoute">采用</button>
+                </div>
+
+                <div class="step-actions">
+                  <span class="helper-copy">选项随时能改，纠结不需要一次说完。</span>
+                  <button class="primary-button next-step" data-next="2" type="button">确认，去抽一张牌 <span>→</span></button>
+                </div>
+              </section>
+
+              <section class="flow-step tarot-step" data-step="2" aria-labelledby="step-two-title" hidden>
+                <div class="step-kicker"><span>STEP 02</span><i></i><span>REFLECT</span></div>
+                <div class="step-title-row">
+                  <div>
+                    <h3 id="step-two-title">让牌面打开一扇窗。</h3>
+                    <p>它只提供一个反思角度，不参与后面的理性分析。</p>
+                  </div>
+                  <span class="status-sticker sticker-yellow">趣味反思</span>
+                </div>
+
+                <div class="tarot-room multi-deck-room">
+                  <div class="tarot-deck-intro" id="tarotDeckIntro">
+                    <span class="mini-label">22 MAJOR ARCANA</span>
+                    <h4>左右滑动牌组，<br/>挑一张此刻想靠近的牌。</h4>
+                    <p>22 张原创简约牌面都在这里。先看到牌背，选中后才翻开。</p>
+                    <div class="swipe-guide"><span>←</span><i></i><span>→</span></div>
+                  </div>
+                  <div class="tarot-carousel" id="tarotCarousel" aria-label="滑动浏览 22 张塔罗牌">
+                    <div class="tarot-track" id="tarotTrack"></div>
+                  </div>
+                  <div class="drawn-result" id="drawnResult" hidden>
+                    <article class="tarot-card-front" id="tarotCardFront">
+                      <div class="card-number" id="cardNumber">0</div>
+                      <div class="tarot-card-art" id="tarotCardArt" aria-hidden="true"></div>
+                      <h4 id="cardName">等待抽取</h4>
+                      <span id="cardKeywords">滑动 · 选择 · 翻开</span>
+                    </article>
+                    <div class="reflection-note">
+                      <span class="mini-label">这张牌想告诉你什么</span>
+                      <p class="tarot-message" id="tarotMessage">正在结合你的问题，听听这张牌带来的角度…</p>
+                      <div class="reflection-questions" id="reflectionQuestions"></div>
+                      <p>答案不需要告诉牌，告诉自己就好。</p>
+                      <button class="text-button" id="redrawButton" type="button">不来电？回到牌组再抽一次（仅 1 次）</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="boundary-note">
+                  <span>!</span>
+                  <p><b>趣味反思，不构成预测或建议。</b>牌面不会进入任何评分，也不会决定哪条路更好。</p>
+                </div>
+
+                <div class="step-actions">
+                  <button class="secondary-button previous-step" data-prev="1" type="button">← 返回修改</button>
+                  <button class="primary-button next-step" id="toScenarios" data-next="3" type="button" disabled>带着这个问题看路线 <span>→</span></button>
+                </div>
+              </section>
+
+              <section class="flow-step scenario-step" data-step="3" aria-labelledby="step-three-title" hidden>
+                <div class="step-kicker"><span>STEP 03</span><i></i><span>IMAGINE</span></div>
+                <div class="step-title-row">
+                  <div>
+                    <h3 id="step-three-title">不是预言，是三版可能剧本。</h3>
+                    <p id="scenarioCriteriaText">等待你确认决策标准后生成。</p>
+                  </div>
+                  <span class="status-sticker sticker-blue">可展开依据</span>
+                </div>
+
+                <div class="scenario-tabs" role="tablist" aria-label="情景选择">
+                  <button class="is-active" data-scenario="base" type="button" role="tab" aria-selected="true"><span>◎</span>基准情景</button>
+                  <button data-scenario="bright" type="button" role="tab" aria-selected="false"><span>☀</span>乐观情景</button>
+                  <button data-scenario="risk" type="button" role="tab" aria-selected="false"><span>△</span>风险情景</button>
+                </div>
+
+                <div class="route-grid">
+                  <article class="route-card route-a">
+                    <header><span>A</span><div><small>OPTION A</small><h4 id="routeAName">去参加朋友的聚会</h4></div></header>
+                    <p class="route-summary" id="routeASummary">你可能会得到连接感，但需要给精力留出缓冲。</p>
+                    <dl>
+                      <div><dt>成立前提</dt><dd id="routeAPremise">你允许自己不必全程高能量社交。</dd></div>
+                      <div><dt>潜在收益</dt><dd id="routeAGain">见到想见的人，也给近期生活一点新鲜感。</dd></div>
+                      <div><dt>潜在代价</dt><dd id="routeACost">回家较晚，第二天可能需要更慢的启动。</dd></div>
+                      <div><dt>可验证动作</dt><dd id="routeAAction">先约定离场时间，并确认交通安排。</dd></div>
+                    </dl>
+                    <div class="reversible"><span></span><b>可逆性</b><small id="routeAReversibility">等待生成</small></div>
+                    <button class="feedback-button" type="button">这条不符合实际</button>
+                  </article>
+
+                  <article class="route-card route-b">
+                    <header><span>B</span><div><small>OPTION B</small><h4 id="routeBName">留在家里好好休息</h4></div></header>
+                    <p class="route-summary" id="routeBSummary">你可能恢复一些电量，也可能短暂担心错过。</p>
+                    <dl>
+                      <div><dt>成立前提</dt><dd id="routeBPremise">休息真的是休息，而不是换个地方继续焦虑。</dd></div>
+                      <div><dt>潜在收益</dt><dd id="routeBGain">身体和注意力得到恢复，明天更从容。</dd></div>
+                      <div><dt>潜在代价</dt><dd id="routeBCost">可能出现一点错过感，需要好好回应朋友。</dd></div>
+                      <div><dt>可验证动作</dt><dd id="routeBAction">给朋友发一条真诚说明，再安排下次见面。</dd></div>
+                    </dl>
+                    <div class="reversible"><span></span><b>可逆性</b><small id="routeBReversibility">等待生成</small></div>
+                    <button class="feedback-button" type="button">这条不符合实际</button>
+                  </article>
+                </div>
+
+                <details class="unknowns-panel">
+                  <summary><span>?</span><b>还有哪些未知项值得先确认</b><small>点击展开</small></summary>
+                  <ul id="unknownsList"><li>等待你的问题完成分析后，这里会列出仍需确认的信息。</li></ul>
+                </details>
+
+                <div class="step-actions">
+                  <button class="secondary-button previous-step" data-prev="2" type="button">← 再看一眼牌</button>
+                  <button class="primary-button next-step" data-next="4" type="button">我心里有数了 <span>→</span></button>
+                </div>
+              </section>
+
+              <section class="flow-step decision-step" data-step="4" aria-labelledby="step-four-title" hidden>
+                <div class="step-kicker"><span>STEP 04</span><i></i><span>CHOOSE</span></div>
+                <div class="step-title-row">
+                  <div>
+                    <h3 id="step-four-title">写下此刻的选择，给未来留一封回信。</h3>
+                    <p>结果不按预期走，也不等于你此刻选错了。</p>
+                  </div>
+                  <span class="status-sticker sticker-green">由你决定</span>
+                </div>
+
+                <fieldset class="choice-fieldset">
+                  <legend>此刻，你更想走向哪边？</legend>
+                  <div class="choice-buttons">
+                    <button class="choice-button" data-choice="A" type="button"><span>A</span><b id="choiceAName">去参加朋友的聚会</b><small>选这条路</small></button>
+                    <button class="choice-button" data-choice="B" type="button"><span>B</span><b id="choiceBName">留在家里好好休息</b><small>选这条路</small></button>
+                    <button class="choice-button compact-choice" data-choice="C" type="button"><span>C</span><b id="choiceCName">第三条路</b><small id="choiceCDetail">等待生成</small></button>
+                  </div>
+                </fieldset>
+
+                <div class="slider-grid">
+                  <label class="range-card">决策信心 <output id="confidenceOutput">3 / 5</output><input id="confidenceRange" type="range" min="1" max="5" value="3"/><span><i>还在摇摆</i><i>很笃定</i></span></label>
+                  <label class="range-card">预期满意度 <output id="satisfactionOutput">4 / 5</output><input id="satisfactionRange" type="range" min="1" max="5" value="4"/><span><i>可能一般</i><i>会挺满意</i></span></label>
+                </div>
+
+                <label class="reason-field">我主要是因为… <textarea id="reasonInput" rows="3" placeholder="比如：我真正需要的是休息，但也不想断开和朋友的连接。"></textarea></label>
+
+                <div class="followup-card">
+                  <div class="calendar-icon" aria-hidden="true"><span></span><b id="calendarDay">24</b><small>JUL</small></div>
+                  <div><b>要不要和未来的自己再聊一次？</b><p>到时候只问一次：实际感受和预期有什么不同。</p></div>
+                  <label><span>回访日期</span><input id="followupDate" type="date" /></label>
+                </div>
+
+                <label class="memory-consent"><input id="memoryConsent" type="checkbox"/><span aria-hidden="true"></span><div><b>把这次记录加入我的私有决策记忆</b><small>关闭时只保存在当前浏览器；你随时可以删除。</small></div></label>
+
+                <div class="step-actions">
+                  <button class="secondary-button previous-step" data-prev="3" type="button">← 返回路线</button>
+                  <button class="primary-button" id="saveDecisionButton" type="button" disabled>保存这次决定 <span>✓</span></button>
+                </div>
+              </section>
+
+              <section class="completion-card" id="completionCard" hidden aria-live="polite">
+                <div class="completion-sun" aria-hidden="true"><span></span></div>
+                <span class="section-index">DECISION SAVED</span>
+                <h3>路牌没有替你指路，<br/>但你已经往前走了一步。</h3>
+                <p id="completionCopy">我们会在你选择的日期，轻轻问一次后来怎么样。</p>
+                <div class="completion-actions">
+                  <button class="primary-button" id="newDecisionButton" type="button">开始另一个决定</button>
+                  <a class="secondary-button" href="#memory">看看我的足迹 ↓</a>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="memory-section section-pad" id="memory" aria-labelledby="memory-title">
+        <svg class="memory-doodle" viewBox="0 0 300 220" aria-hidden="true"><path d="M51 181c17-41 20-94 4-141M62 55c24-24 45-23 62 1-25 4-43 2-62-1ZM51 105c-28-20-48-15-62 12 24 7 42 2 62-12ZM54 139c30-18 58-10 73 16-28 5-51-2-73-16ZM196 181c-8-36-5-74 9-113M203 82c-21-17-39-13-50 10 19 5 35 2 50-10ZM200 122c27-16 49-9 61 15-23 6-43 1-61-15Z"/></svg>
+        <div class="section-heading light-heading">
+          <div>
+            <span class="section-index">02 / YOUR FOOTPRINTS</span>
+            <h2 id="memory-title">过去不是判决书，<br/><em>只是留在纸上的脚印。</em></h2>
+          </div>
+          <p>记录足够多时，我们才会谨慎地提出一条“可能的模式”，并把支持证据、反例和变化一起给你看。</p>
+        </div>
+
+        <div class="memory-board" id="memoryBoard">
+          <div class="memory-toolbar">
+            <div><span class="live-dot"></span><b>本月的你</b><small id="recordCount">0 条记录 · 等待开启</small></div>
+            <div class="view-switch"><button class="is-active" type="button">卡片</button><button type="button">时间线</button></div>
+          </div>
+
+          <div class="memory-empty" id="memoryEmpty">
+            <div class="empty-orbit" aria-hidden="true"><span></span></div>
+            <span class="section-index">WAITING FOR THE FIRST STEP</span>
+            <h3>这里还没有脚印。</h3>
+            <p>完成一次真实决定后，它会出现在这里。没有样本时，我们不会假装了解你。</p>
+            <a class="primary-button" href="#top">开启第一次决定 ↑</a>
+          </div>
+
+          <div class="insight-grid" id="memoryPopulated" hidden>
+            <article class="insight-card main-insight" id="insightCard" hidden>
+              <span class="tape" aria-hidden="true"></span>
+              <small>一条值得继续观察的小线索</small>
+              <blockquote>“当选择可以随时调整时，你更愿意先行动，再收集感受。”</blockquote>
+              <div class="evidence-row"><span>支持 3 次</span><span>反例 1 次</span><span>低置信度</span></div>
+              <button type="button" id="evidenceButton">看看依据 <span>→</span></button>
+            </article>
+
+            <article class="mini-report" id="miniReport" hidden>
+              <header><span>JUL / 2026</span><b>小小复盘</b></header>
+              <div class="report-number"><strong>+1.2</strong><span>平均清晰度变化</span></div>
+              <div class="bar-chart" aria-label="近四次决策清晰度变化">
+                <i style="--h:38%"></i><i style="--h:56%"></i><i style="--h:49%"></i><i style="--h:78%"></i>
+              </div>
+              <p>样本还小，宇宙和系统都先不急着下结论。</p>
+            </article>
+
+            <article class="memory-timeline" id="memoryTimeline">
+              <div class="timeline-item"><span>07.12</span><div><small>生活 · 已回访</small><b>晚上运动，还是早点休息？</b><p>实际满意度比预期高 1 分</p></div><i class="status-good">+1</i></div>
+              <div class="timeline-item"><span>07.05</span><div><small>社交 · 已回访</small><b>去看展，还是在家画画？</b><p>选择了“小尝试”：只逛一小时</p></div><i>0</i></div>
+              <div class="timeline-item"><span>06.28</span><div><small>消费 · 等待回访</small><b>现在买耳机，还是等促销？</b><p>预计 07.28 回来看看</p></div><i class="status-wait">…</i></div>
+            </article>
+          </div>
+        </div>
+
+        <div class="evidence-drawer" id="evidenceDrawer" hidden>
+          <div class="drawer-backdrop" data-close-drawer></div>
+          <aside role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+            <button class="drawer-close" type="button" data-close-drawer aria-label="关闭">×</button>
+            <span class="section-index">TRACEABLE MEMORY</span>
+            <h3 id="drawerTitle">这条小线索从哪里来？</h3>
+            <p>以下只是过去的证据，不是今天的命令。</p>
+            <ul>
+              <li><span>支持</span><div><b>只逛一小时的看展计划</b><small>2026.07.05 · 实际满意度 4/5</small></div></li>
+              <li><span>支持</span><div><b>先试一周的晨间散步</b><small>2026.06.18 · 愿意再选一次</small></div></li>
+              <li class="counter"><span>反例</span><div><b>短租前选择继续观望</b><small>2026.05.27 · 信息不足时没有行动</small></div></li>
+            </ul>
+            <button class="secondary-button" type="button" data-close-drawer>我知道了</button>
+            <button class="text-button" type="button">我现在已经不这样了</button>
+          </aside>
+        </div>
+      </section>
+
+      <section class="principles section-pad" id="principles" aria-labelledby="principles-title">
+        <div class="principles-copy">
+          <span class="section-index">03 / A KIND REMINDER</span>
+          <h2 id="principles-title">这面镜子，<br/>只照见，<em>不指挥。</em></h2>
+          <div class="principle-pills"><span>不预测</span><span>不贴标签</span><span>不制造负担</span><span>记忆可关闭</span></div>
+        </div>
+        <div class="privacy-window retro-window">
+          <div class="window-bar"><span>PRIVACY_CONTROL.SYS</span><span>YOU ARE IN CONTROL</span></div>
+          <div class="privacy-list">
+            <div><span>01</span><div><b>长期记忆默认关闭</b><p>只有你主动同意后，记录才会加入私有记忆。</p></div><i class="toggle-off"></i></div>
+            <div><span>02</span><div><b>每条结论都能追溯</b><p>看见来源、样本数、反例和更新时间。</p></div><i>↗</i></div>
+            <div><span>03</span><div><b>随时导出或彻底删除</b><p>原文、向量、摘要和引用一起清除。</p></div><i>↗</i></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5v38M9 16h24l6 6-6 6H9l6-6-6-6Z"/></svg></span><div><b>岔路牌</b><small>AI PERSONAL DECISION MIRROR</small></div></div>
+      <p>“把当时的你，和后来的你重新介绍给彼此。”</p>
+      <a href="#top">回到顶部 ↑</a>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
